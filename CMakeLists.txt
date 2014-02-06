@@ -17,5 +17,7 @@ include_directories(${Boost_INCLUDE_DIRS} ..)
 add_executable(fristen
   fristen.cc
   feiertage.cc
+  dhondt.cc
+  mitglieder.cc
   )
 target_link_libraries(fristen ${Boost_LIBRARIES})

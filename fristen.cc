@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <stdexcept>
 using namespace std;
 
 // currently not needed:
@@ -28,6 +29,8 @@ using namespace boost::gregorian;
 namespace po = boost::program_options;
 
 #include "feiertage.h"
+#include "dhondt.h"
+#include "mitglieder.h"
 
 namespace OPT {
 // work around option display bug:
@@ -41,6 +44,11 @@ static const char WAHLAUSSCHREIBEN[] = "wahlausschreiben";
 static const char LAND[] = "land";
 static const char FEIERTAG[] = "ft";
 static const char SHOW_FEIERTAG[] = "showft";
+static const char CATS[] = "cats";
+static const char DIST[] = "dist";
+static const char SEATS[] = "seats";
+static const char ARBEITNEHMER[] = "arbeitnehmer";
+static const char WAHLBERECHTIGTE[] = "wahlberechtigte";
 static const char HELP_S[] = "help,h";
 static const char HELP[] = "help";
 }
@@ -101,6 +109,11 @@ struct Options {
   Bundesland land;
   vector<date> add_feiertag;
   bool show_feiertag { false };
+  vector<string> cats;
+  vector<unsigned> dist;
+  unsigned seats {0};
+  unsigned arbeitnehmer {0};
+  unsigned wahlberechtigte {0};
 
   ostream &print(ostream &o) const
   {
@@ -137,7 +150,23 @@ struct Options {
       (OPT::SHOW_FEIERTAG,
        po::value<bool>(&show_feiertag)->default_value(false, "false")
        ->implicit_value(true, "true")->value_name("bool"),
-       "print Feiertage");
+       "print Feiertage")
+      (OPT::CATS, po::value<vector<string> >(&cats)
+       ->default_value({"men", "women"}, "men, women")
+       ->multitoken(),
+       "change list of d'Hondt buckets")
+      (OPT::DIST, po::value<vector<unsigned> >(&dist)
+       ->multitoken(),
+       "list of d'Hondt bucket values")
+      (OPT::SEATS, po::value<unsigned>(&seats)
+       ->default_value(0),
+       "d'Hondt Sitze - alternativ: Angabe von Wahlberechtigten+Betriebsgröße")
+      (OPT::ARBEITNEHMER, po::value<unsigned>(&arbeitnehmer)
+       ->default_value(0),
+       "Betriebsgröße -> Berechnung der BR Sitze (cf. #Wahlberechtigte)")
+      (OPT::WAHLBERECHTIGTE, po::value<unsigned>(&wahlberechtigte)
+       ->default_value(0),
+       "Wahlberechtigte Arbeitnehmer -> Berechnung der BR Sitze")
       ;
     po::positional_options_description pdesc;
     // we want to error out on accidentally specified positional
@@ -151,6 +180,11 @@ struct Options {
       cout << desc << "\n";
       exit(0);
     }
+    if (wahlberechtigte > arbeitnehmer)
+      throw runtime_error("Mehr Wahlberechtigte als Arbeitnehmer angegeben!");
+    if (cats.size() != dist.size())
+      throw runtime_error("Anzahl von d'Hondt Kategorien passt nicht"
+          " zur Anzahl der Werte!");
     for (auto &i : add_feiertag)
         sd.insert(i);
 
@@ -293,6 +327,117 @@ static void print_feiertage(ostream &o, const Options &opts)
   o << '\n';
 }
 
+void sitze(ostream &o, Options &opts)
+{
+  o << "Betriebsgröße       : " << opts.arbeitnehmer << '\n'
+    << "Wahlberechtigte     : " << opts.wahlberechtigte << '\n'
+    << "BR-Größe (berechnet): ";
+  unsigned r = br_size(opts.wahlberechtigte, opts.arbeitnehmer);
+  if (!r) {
+    o << "0 -> Betrieb ZU KLEIN für einen Betriebsrat!\n";
+    return ;
+  }
+  o << r;
+  if (opts.seats && opts.seats != r) {
+    o << " vs. " << opts.seats << " (via Option) -> MISMATCH!\n";
+    return;
+  }
+  opts.seats = r;
+  o << '\n';
+}
+
+
+bool minderheit(ostream &o, const Options &opts)
+{
+  o << "Minderheitengeschlechtsregelungen:\n";
+  for (auto i : opts.cats)
+    o << setw(10) << i;
+  o << '\n';
+  for (auto i : opts.dist)
+    o << setw(10) << i;
+  o << '\n';
+  o << "Minderheitengeschlecht: ";
+  if (opts.cats.size() == 2) {
+    if (opts.dist[0] == opts.dist[1]) {
+      o << "KEINS! -> Regulung nicht anwendbar!\n";
+      return false;
+    }
+    if (fabs(
+          double(opts.dist[0])/double(opts.dist[0]+opts.dist[1]) -
+          double(opts.dist[1])/double(opts.dist[0]+opts.dist[1])
+          )
+          < 0.05) {
+      o << "Unterschied < 5 % -> vielleicht Regelung nicht anwendbar"
+        " -> prüfen!\n";
+      return true;
+    }
+    if (opts.dist[0] < opts.dist[1])
+      o << opts.cats[0];
+    else
+      o << opts.cats[1];
+    o << '\n';
+  } else {
+    o << "n/a\n";
+  }
+  return true;
+}
+
+void sitz_verteilung(ostream &o, const Options &opts,
+    const vector<unsigned> &result)
+{
+  o << "Sitzverteilung:\n";
+  for (auto x : opts.cats)
+    o << setw(13) << x;
+  o << '\n';
+  for (auto x : result)
+    o << setw(13) << x;
+  o << '\n';
+  if (opts.cats.size() == 2) {
+    unsigned a = 1, b = 0;
+    if (opts.dist[0] < opts.dist[1]) {
+      a = 0;
+      b = 1;
+    }
+    o << "=> Es müssen mindestens " << result[a] << " der " << opts.seats
+      << " BR-Sitze an das Minderheitsgeschlecht (" << opts.cats[a] << ")"
+      << " verteilt werden (falls genug Kandidaten verfügbar sind)\n";
+    o << "=> Es dürfen nicht mehr als " << result[b] << " der " << opts.seats
+      << " BR-Sitze an der Mehrheitsgeschlecht (" << opts.cats[b] << ")"
+      << " verteilt werden - es sei denn, es sind nicht genug minderheitsgeschlechtliche"
+      << " Kandidaten verfügbar\n";
+  }
+}
+
+void dhondt(ostream &o, const Options &opts)
+{
+  if (!opts.seats || opts.dist.empty())
+    return;
+  if (!minderheit(o, opts))
+    return;
+
+  boost::multi_array<pair<double, unsigned>, 2> mass_rank;
+  vector<unsigned> result;
+  dhondt(opts.dist, opts.seats, mass_rank, result);
+
+  sitz_verteilung(o, opts, result);
+
+  auto dims = mass_rank.shape();
+  o << "D'Hondt Tabelle:\n";
+  for (auto x : opts.cats)
+    o << setw(13) << x;
+  o << '\n';
+  for (unsigned i = 0; i < dims[0]; ++i) {
+    for (unsigned j = 0; j < dims[1]; ++j) {
+      o << setw(5) << setprecision(2) << mass_rank[i][j].first;
+      if (mass_rank[i][j].second < 7)
+        o << " (" << setw(5) << mass_rank[i][j].second << ")";
+      else
+        o << setw(8) << ' ';
+    }
+    o << '\n';
+  }
+}
+
 int main(int argc, char **argv)
 {
   Options opts;
@@ -309,6 +454,10 @@ int main(int argc, char **argv)
   wahlvorschlaege(cout, opts);
   wahlvorschlaege_bekanntmachung(cout, opts);
   konstituierende(cout, opts);
+
+  sitze(cout, opts);
+  dhondt(cout, opts);
+
 
   return 0;
 }
