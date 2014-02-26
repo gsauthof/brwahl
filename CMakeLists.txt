@@ -12,7 +12,7 @@ find_package(Boost 1.53
     program_options
     date_time
   REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS} ..)
+include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(fristen
   fristen.cc
