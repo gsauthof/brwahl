@@ -1,5 +1,5 @@
 /* Collection of date calculations related to the German
- * Betriebsratswahlgesetz.
+ * Betriebsratswahl.
  *
  * 2014-01-26, Georg Sauthoff <mail@georg.so>
  *
@@ -438,6 +438,31 @@ void dhondt(ostream &o, const Options &opts)
   }
 }
 
+// http://www.gesetze-im-internet.de/betrvg/__14.html
+// § 14 Wahlvorschriften
+// [..]
+// (4) Jeder Wahlvorschlag der Arbeitnehmer muss von mindestens einem
+// Zwanzigstel der wahlberechtigten Arbeitnehmer, mindestens jedoch von drei
+// Wahlberechtigten unterzeichnet sein; in Betrieben mit in der Regel bis zu
+// zwanzig wahlberechtigten Arbeitnehmern genügt die Unterzeichnung durch zwei
+// Wahlberechtigte. In jedem Fall genügt die Unterzeichnung durch fünfzig
+// wahlberechtigte Arbeitnehmer.
+// (5) Jeder Wahlvorschlag einer Gewerkschaft muss von zwei Beauftragten
+// unterzeichnet sein.
+void stuetzer(ostream &o, const Options &opts)
+{
+
+  double n = double(opts.wahlberechtigte)/20.0;
+  double m = std::max(n, 3.0);
+  o << "Bei " << opts.wahlberechtigte
+    << " Wahlberechtigten müssen Wahlvorschläge von mindestens " << m
+    << " wahlberechtigten Arbeitnehmern unterschrieben sein (= 1/20 * #Wahlberechtigte).\n";
+  o << "Ausnahmen:\n"
+       "  - Gewerkschaftsvorschlag: 2 Beauftragte reichen aus\n";
+  if (opts.wahlberechtigte < 20)
+    o << "  - wenn Betrieb auch 'in der Regel' < 20 Wahlberechtigte hat, reichen 2 Wahlberechtigte aus\n";
+}
+
 int main(int argc, char **argv)
 {
   Options opts;
@@ -452,6 +477,7 @@ int main(int argc, char **argv)
   einsetzung_wahlvorstand(cout, opts);
   wahlausschreiben(cout, opts);
   wahlvorschlaege(cout, opts);
+  stuetzer(cout, opts);
   wahlvorschlaege_bekanntmachung(cout, opts);
   konstituierende(cout, opts);
 
