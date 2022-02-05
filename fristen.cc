@@ -67,7 +67,7 @@ static ostream &operator<<(ostream &o, const date &d)
 namespace boost {
   namespace gregorian {
 
-    void validate(boost::any &v,
+    static void validate(boost::any &v,
         const std::vector<std::string> &values,
         date*, int)
     {
@@ -76,7 +76,7 @@ namespace boost {
       const string &s = validators::get_single_string(values);
       try {
         v = boost::any(from_string(s));
-      } catch (boost::bad_lexical_cast) {
+      } catch (const boost::bad_lexical_cast &) {
         throw validation_error(validation_error::invalid_option_value);
       }
     }
@@ -84,7 +84,7 @@ namespace boost {
   }
 }
 
-void validate(boost::any &v,
+static void validate(boost::any &v,
     const std::vector<std::string> &values,
     Bundesland*, int)
 {
@@ -93,7 +93,7 @@ void validate(boost::any &v,
   const string &s = validators::get_single_string(values);
   try {
     v = boost::any(str_to_bundesland(s));
-  } catch (range_error) {
+  } catch (const range_error &) {
     throw validation_error(validation_error::invalid_option_value);
   }
 }
@@ -197,7 +197,7 @@ struct Options {
 };
 
 
-ostream &operator<<(ostream &o, const Options &opts)
+static ostream &operator<<(ostream &o, const Options &opts)
 {
   return opts.print(o);
 }
@@ -214,7 +214,7 @@ static void ende_br(ostream &o, Options &opts)
   opts.br_end = d;
 }
 
-ostream &pp_move_prev(ostream &o, const date &r, const set<date> &sd)
+static ostream &pp_move_prev(ostream &o, const date &r, const set<date> &sd)
 {
   date c(previous_work_day(r, sd));
   if (c == r)
@@ -224,7 +224,7 @@ ostream &pp_move_prev(ostream &o, const date &r, const set<date> &sd)
   return o;
 }
 
-ostream &pp_move_next(ostream &o, const date &r, const set<date> &sd)
+static ostream &pp_move_next(ostream &o, const date &r, const set<date> &sd)
 {
   date c(next_work_day(r, sd));
   if (c == r)
@@ -327,7 +327,7 @@ static void print_feiertage(ostream &o, const Options &opts)
   o << '\n';
 }
 
-void sitze(ostream &o, Options &opts)
+static void sitze(ostream &o, Options &opts)
 {
   o << "Betriebsgröße       : " << opts.arbeitnehmer << '\n'
     << "Wahlberechtigte     : " << opts.wahlberechtigte << '\n'
@@ -347,7 +347,7 @@ void sitze(ostream &o, Options &opts)
 }
 
 
-bool minderheit(ostream &o, const Options &opts)
+static bool minderheit(ostream &o, const Options &opts)
 {
   o << "Minderheitengeschlechtsregelungen:\n";
   for (auto i : opts.cats)
@@ -382,7 +382,7 @@ bool minderheit(ostream &o, const Options &opts)
   return true;
 }
 
-void sitz_verteilung(ostream &o, const Options &opts,
+static void sitz_verteilung(ostream &o, const Options &opts,
     const vector<unsigned> &result)
 {
   o << "Sitzverteilung:\n";
@@ -408,7 +408,7 @@ void sitz_verteilung(ostream &o, const Options &opts,
   }
 }
 
-void dhondt(ostream &o, const Options &opts)
+static void dhondt(ostream &o, const Options &opts)
 {
   if (!opts.seats || opts.dist.empty())
     return;
@@ -449,7 +449,7 @@ void dhondt(ostream &o, const Options &opts)
 // wahlberechtigte Arbeitnehmer.
 // (5) Jeder Wahlvorschlag einer Gewerkschaft muss von zwei Beauftragten
 // unterzeichnet sein.
-void stuetzer(ostream &o, const Options &opts)
+static void stuetzer(ostream &o, const Options &opts)
 {
 
   double n = double(opts.wahlberechtigte)/20.0;

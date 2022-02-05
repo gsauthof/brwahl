@@ -1,3 +1,5 @@
+#include "mitglieder.h"
+
 #include <cassert>
 #include <array>
 using namespace std;

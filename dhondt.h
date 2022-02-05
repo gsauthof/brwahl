@@ -2,12 +2,13 @@
 #define DHONDT_H
 
 #include <utility>
+#include <vector>
 #include <boost/multi_array.hpp>
 
-void dhondt(const vector<unsigned> &distribution,
+void dhondt(const std::vector<unsigned> &distribution,
     unsigned seats,
     boost::multi_array<std::pair<double, unsigned>, 2> &mass_rank,
-    vector<unsigned> &result
+    std::vector<unsigned> &result
     );
 
 #endif

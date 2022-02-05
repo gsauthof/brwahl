@@ -1,3 +1,5 @@
+#include "dhondt.h"
+
 #include <algorithm>
 #include <random>
 #include <array>
@@ -45,7 +47,7 @@ struct Cmp {
 };
 
 // 'Losentscheid'
-void shuffle_tail(
+static void shuffle_tail(
   vector<pair<unsigned, unsigned> > &t,
   const multi_array<pair<double, unsigned>, 2> &a,
   unsigned seats)

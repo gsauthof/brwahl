@@ -1,11 +1,5 @@
-cmake_minimum_required(VERSION 2.8)
-
-set(CMAKE_CXX_FLAGS_DEBUG
-  "${CMAKE_CXX_FLAGS_DEBUG} -std=c++11 -Wall")
-set(CMAKE_CXX_FLAGS
-  "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-
-set(CMAKE_VERBOSE_MAKEFILE  true)
+cmake_minimum_required(VERSION 2.8...3.22.1)
+project(brwahl CXX)
 
 find_package(Boost 1.53
   COMPONENTS

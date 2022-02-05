@@ -75,7 +75,7 @@ namespace std {
 }
 */
 
-date easter_sunday(boost::gregorian::greg_year year)
+static date easter_sunday(boost::gregorian::greg_year year)
 {
   unsigned x = year;
   // http://de.wikipedia.org/wiki/Gau%C3%9Fsche_Osterformel#Eine_erg.C3.A4nzte_Osterformel
