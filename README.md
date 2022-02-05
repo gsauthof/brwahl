@@ -30,6 +30,13 @@ help descriptions are not translated.
 - [CMake][cm]
 - the [Boost Library][bo] (especially Boost Date Time)
 
+## Build Instructions
+
+    mkdir build
+    cd build
+    cmake ..
+    make
+
 ## License
 
 [GPLv3+][gpl]
