@@ -1,6 +1,9 @@
 #ifndef FEIERTAGE_H
 #define FEIERTAGE_H
 
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: © 2014 Georg Sauthoff <mail@gms.tf>
+
 //#include <unordered_set>
 #include <set>
 #include <string>

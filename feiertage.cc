@@ -1,9 +1,10 @@
 /* Collection of date calculations related to the German special days.
  *
- * 2014-01-26, Georg Sauthoff <mail@georg.so>
- *
- * GPLv3+
  */
+
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: © 2014 Georg Sauthoff <mail@gms.tf>
+
 #include "feiertage.h"
 
 #include <boost/date_time/gregorian/gregorian.hpp>

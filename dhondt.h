@@ -1,6 +1,9 @@
 #ifndef DHONDT_H
 #define DHONDT_H
 
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: © 2014 Georg Sauthoff <mail@gms.tf>
+
 #include <utility>
 #include <vector>
 #include <boost/multi_array.hpp>

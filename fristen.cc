@@ -1,10 +1,9 @@
 /* Collection of date calculations related to the German
  * Betriebsratswahl.
- *
- * 2014-01-26, Georg Sauthoff <mail@georg.so>
- *
- * GPLv3+
  */
+
+// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: © 2014 Georg Sauthoff <mail@gms.tf>
 
 #include <iostream>
 #include <string>
