@@ -10,6 +10,7 @@
 #include <string>
 #include <utility>
 #include <stdexcept>
+#include "boost/multi_array.hpp"
 using namespace std;
 
 // currently not needed:
@@ -67,7 +68,7 @@ static ostream &operator<<(ostream &o, const date &d)
 namespace boost {
   namespace gregorian {
 
-    void validate(boost::any &v, 
+    void validate(boost::any &v,
         const std::vector<std::string> &values,
         date*, int)
     {
@@ -84,7 +85,7 @@ namespace boost {
   }
 }
 
-void validate(boost::any &v, 
+void validate(boost::any &v,
     const std::vector<std::string> &values,
     Bundesland*, int)
 {
@@ -175,7 +176,7 @@ struct Options {
     //po::store(po::parse_command_line(argc, argv, desc), vm);
     po::store(po::command_line_parser(argc, argv)
         .options(desc).positional(pdesc).run(), vm);
-    po::notify(vm);    
+    po::notify(vm);
     if (vm.count(OPT::HELP)) {
       cout << desc << "\n";
       exit(0);
