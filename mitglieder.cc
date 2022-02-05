@@ -54,7 +54,7 @@ unsigned br_size(unsigned wahlberechtigte, unsigned arbeitnehmer)
   if (wahlberechtigte < 5)
     return 0;
 
-  // In Betrieben mit mehr als 9.000 Arbeitnehmern erhöht sich die Zahl der Mitglieder des Betriebsrats für je angefangene weitere 3.000 Arbeitnehmer um 2 Mitglieder. 
+  // In Betrieben mit mehr als 9.000 Arbeitnehmern erhöht sich die Zahl der Mitglieder des Betriebsrats für je angefangene weitere 3.000 Arbeitnehmer um 2 Mitglieder.
   if (arbeitnehmer > 9000) {
     unsigned seats = 35;
     unsigned rest = arbeitnehmer - 9000;

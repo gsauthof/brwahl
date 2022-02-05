@@ -20,7 +20,7 @@ using namespace std;
 static const bool ftmap[static_cast<unsigned>(Feiertag::END)]
                        [static_cast<unsigned>(Bundesland::END)] =
 {
-   // BW   , BY    , BE    , BB    , HB    , HH    , HE    , MV    , NI    , NW    , RP    , SL    , SN    , ST    , SH    , TH       , 
+   // BW   , BY    , BE    , BB    , HB    , HH    , HE    , MV    , NI    , NW    , RP    , SL    , SN    , ST    , SH    , TH       ,
    { true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  }  , // Neujahr
    { true  , true  , false , false , false , false , false , false , false , false , false , false , false , true  , false , false }  , // Drei_K
    { true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  , true  }  , // Karfrei
